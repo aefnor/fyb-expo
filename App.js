@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-maps';
+import Main from './pages/main/Main'
 
 class App extends Component {
   LATITUDE_DELTA = 0.0025;
@@ -93,33 +94,43 @@ class App extends Component {
     this.state = {
       ready: false,
       userLocation: {},
-      fontLoaded: false
+      fontLoaded: false,
+      toggle_maps: false,
     }
+
+    this.toggleMap = this.toggleMap.bind(this);
+  }
+
+  toggleMap() {
+    this.setState({
+      toggle_maps: true,
+    });
   }
 
   render(){
-    console.log("in render");
-    return (
+    return(
       <View style={styles.container}>
-        {/* <Text>Open up App.js to start working on your app!</Text> */}
-        <MapView
-          provider="google"
-          region={
-          this.getMapRegion()
+        {this.state.toggle_maps ? 
+            <MapView
+              provider="google"
+              region={
+              this.getMapRegion()
+            }
+              ref={ map => { this.map = map }}
+              style={{height: '100%', width: '100%'}}
+              followsUserLocation={true}
+              showsUserLocation={true} 
+              loadingEnabled={true}
+              //renderMarker={renderMarker}
+              onMapReady={this.onMapReady}
+              showsMyLocationButton={true}
+            />
+        :
+        <Main handleToggle={this.toggleMap} title="FYB"/>
         }
-          ref={ map => { this.map = map }}
-          style={{height: '100%', width: '100%'}}
-          customMapStyle={this.mapStyle}
-          followsUserLocation={true}
-          showsUserLocation={true} 
-          loadingEnabled={true}
-          //renderMarker={renderMarker}
-          onMapReady={this.onMapReady}
-          showsMyLocationButton={true}
-        />
       </View>
-    );
-  }
+    )
+  } 
 
   componentDidMount() {
     this.getCurrentPosition();
