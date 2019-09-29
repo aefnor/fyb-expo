@@ -118,6 +118,7 @@ class App extends Component {
             }
               ref={ map => { this.map = map }}
               style={{height: '100%', width: '100%'}}
+              customMapStyle={this.mapStyle}
               followsUserLocation={true}
               showsUserLocation={true} 
               loadingEnabled={true}
