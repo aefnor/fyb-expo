@@ -25,6 +25,9 @@
     ],
     "ios": {
       "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "process.env.REACT_APP_API_KEY"
+      },
       "infoPlist": {
         "UIBackgroundModes": [
           "location",
