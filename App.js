@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-maps';
 import Main from './pages/main/Main'
+import { DepthDataQuality } from 'expo/build/AR';
 
 class App extends Component {
   LATITUDE_DELTA = 0.0025;
@@ -96,12 +97,65 @@ class App extends Component {
       userLocation: {},
       fontLoaded: false,
       toggle_maps: false,
+      location: {lat: 0, long: 0}
     }
 
     this.toggleMap = this.toggleMap.bind(this);
+    this.updateMaps = this.updateMaps.bind(this);
+  }
+  updateMaps(data){
+    // console.log("Here")
+    var item = data[Math.floor(Math.random()*data.length)];
+    // console.log(item)
+    this.setState ({
+      location: {lat: item.geometry.location.lat, long: item.geometry.location.lng}
+    },() => {console.log(this.state.location)})
   }
 
   toggleMap() {
+    // https://maps.googleapis.com/maps/api/place/nearbysearch/json
+    // ?location=-33.8670522,151.1957362
+    // &radius=1500
+    // &type=restaurant
+    // &keyword=cruise
+    // &key=YOUR_API_KEY
+    let data =  {
+          location: '-33.8670522,151.1957362',
+          radius: '1500',
+          type: 'restaurant',
+          keyword: '',
+          key: 'AIzaSyApTmMUNSRvE8yEp8Q5sRWd8zVF0m6ryao'
+    }
+    // console.log('https://maps.googleapis.com/maps/api/place/nearbysearch/json?'+ data.location + '&radius=' + data.radius + '&type=' + data.type + '&keyword=' + data.keyword + '&key=' + data.key)
+    let test = fetch('https://maps.googleapis.com/maps/api/place/nearbysearch/json?location='+ data.location + '&radius=' + data.radius + '&type=' + data.type + '&keyword=' + data.keyword + '&key=' + data.key)
+    .then((response) => response.json())
+    .then((responseJson) => {
+      // console.log("Response", responseJson.results[0])
+      this.updateMaps(responseJson.results);
+      // return responseJson;
+    })
+    .catch((error) => {
+      // console.error("Errored", error);
+    });
+
+
+    // test = fetch('https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
+    //   method: 'GET',
+    //   headers: {
+    //     Accept: 'application/json',
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     location: '33.8670522,151.1957362',
+    //     radius: '1500',
+    //     type: 'restaurant',
+    //     keyword: '',
+    //     key: 'AIzaSyApTmMUNSRvE8yEp8Q5sRWd8zVF0m6ryao'
+    //   }),
+    // });
+
+    // console.log("Test", test)
+
     this.setState({
       toggle_maps: true,
     });
@@ -138,8 +192,8 @@ class App extends Component {
   }
 
   getMapRegion = () => ({
-    latitude: this.state.userLocation.latitude ? this.state.userLocation.latitude : 1,
-    longitude: this.state.userLocation.longitude ? this.state.userLocation.longitude : 1,
+    latitude: this.state.userLocation.latitude ? this.state.location.lat : 1,
+    longitude: this.state.userLocation.longitude ? this.state.location.long : 1,
     latitudeDelta: this.LATITUDE_DELTA,
     longitudeDelta: this.LONGITUDE_DELTA
   });
