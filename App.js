@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-maps';
 import Main from './pages/main/Main'
 import { DepthDataQuality } from 'expo/build/AR';
+import MapViewDirections from 'react-native-maps-directions';
 
 class App extends Component {
   LATITUDE_DELTA = 0.0025;
@@ -97,7 +98,9 @@ class App extends Component {
       userLocation: {},
       fontLoaded: false,
       toggle_maps: false,
-      location: {lat: 0, long: 0}
+      location: {latitude: 0, longitude: 0},
+      origin: {latitude: 37.3318456, longitude: -122.0296002},
+      destination: {latitude: 37.771707, longitude: -122.4053769}
     }
 
     this.toggleMap = this.toggleMap.bind(this);
@@ -108,8 +111,8 @@ class App extends Component {
     var item = data[Math.floor(Math.random()*data.length)];
     // console.log(item)
     this.setState ({
-      location: {lat: item.geometry.location.lat, long: item.geometry.location.lng}
-    },() => {console.log(this.state.location)})
+      location: {latitude: item.geometry.location.lat, longitude: item.geometry.location.lng}
+    },() => {})
   }
 
   toggleMap() {
@@ -120,7 +123,7 @@ class App extends Component {
     // &keyword=cruise
     // &key=YOUR_API_KEY
     let data =  {
-          location: '-33.8670522,151.1957362',
+          location: this.state.userLocation.latitude+','+this.state.userLocation.longitude,
           radius: '1500',
           type: 'restaurant',
           keyword: '',
@@ -162,6 +165,11 @@ class App extends Component {
   }
 
   render(){
+    const origin = {latitude: 37.3318456, longitude: -122.0296002};
+    const destination = {latitude: 37.771707, longitude: -122.4053769};
+    const GOOGLE_MAPS_APIKEY = 'AIzaSyApTmMUNSRvE8yEp8Q5sRWd8zVF0m6ryao';
+    console.log("\n", this.state.location,"\n",this.state.userLocation, "\n", origin, '\n')
+
     return(
       <View style={styles.container}>
         {this.state.toggle_maps ? 
@@ -179,7 +187,17 @@ class App extends Component {
               //renderMarker={renderMarker}
               onMapReady={this.onMapReady}
               showsMyLocationButton={true}
-            />
+              // showsTraffic={true}
+            >
+
+              <MapViewDirections
+                origin={this.state.userLocation}
+                destination={this.state.location}
+                apikey={GOOGLE_MAPS_APIKEY}
+                strokeWidth={3}
+                strokeColor="hotpink"
+              />
+            </MapView>
         :
         <Main handleToggle={this.toggleMap} title="FYB"/>
         }
@@ -192,8 +210,8 @@ class App extends Component {
   }
 
   getMapRegion = () => ({
-    latitude: this.state.userLocation.latitude ? this.state.location.lat : 1,
-    longitude: this.state.userLocation.longitude ? this.state.location.long : 1,
+    latitude: this.state.userLocation.latitude ? this.state.location.latitude : 1,
+    longitude: this.state.userLocation.longitude ? this.state.location.longitude : 1,
     latitudeDelta: this.LATITUDE_DELTA,
     longitudeDelta: this.LONGITUDE_DELTA
   });
