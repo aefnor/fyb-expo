@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import MapView from 'react-native-maps';
+import MapView, { Callout } from 'react-native-maps';
 import Main from './pages/main/Main'
 import { DepthDataQuality } from 'expo/build/AR';
 import MapViewDirections from 'react-native-maps-directions';
@@ -104,6 +104,7 @@ class App extends Component {
     }
 
     this.toggleMap = this.toggleMap.bind(this);
+    this.gestureHandle = this.gestureHandle.bind(this);
     this.updateMaps = this.updateMaps.bind(this);
   }
   updateMaps(data){
@@ -113,6 +114,10 @@ class App extends Component {
     this.setState ({
       location: {latitude: item.geometry.location.lat, longitude: item.geometry.location.lng}
     },() => {})
+  }
+
+  gestureHandle(e) {
+    console.log(e.touchHistory)
   }
 
   toggleMap() {
@@ -168,7 +173,7 @@ class App extends Component {
     const origin = {latitude: 37.3318456, longitude: -122.0296002};
     const destination = {latitude: 37.771707, longitude: -122.4053769};
     const GOOGLE_MAPS_APIKEY = 'AIzaSyApTmMUNSRvE8yEp8Q5sRWd8zVF0m6ryao';
-    console.log("\n", this.state.location,"\n",this.state.userLocation, "\n", origin, '\n')
+    // console.log("\n", this.state.location,"\n",this.state.userLocation, "\n", origin, '\n')
 
     return(
       <View style={styles.container}>
@@ -189,7 +194,10 @@ class App extends Component {
               showsMyLocationButton={true}
               // showsTraffic={true}
             >
-
+              <Callout></Callout>
+              <View onMoveShouldSetResponder={this.gestureHandle} onStartShouldSetResponder={this.gestureHandle} style={{position: 'absolute', backgroundColor:'red', height: '30%', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'flex-end', alignItems: 'center'}}>
+                <Text>Hello!</Text>
+              </View>
               <MapViewDirections
                 origin={this.state.userLocation}
                 destination={this.state.location}
