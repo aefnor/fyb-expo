@@ -1,7 +1,10 @@
 import React, {Component} from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import MapView from 'react-native-maps';
+import MapView, { Callout } from 'react-native-maps';
 import Main from './pages/main/Main'
+import { DepthDataQuality } from 'expo/build/AR';
+import MapViewDirections from 'react-native-maps-directions';
+import { GOOGLE_MAPS_API_KEY } from 'react-native-dotenv'
 
 class App extends Component {
   LATITUDE_DELTA = 0.0025;
@@ -96,18 +99,82 @@ class App extends Component {
       userLocation: {},
       fontLoaded: false,
       toggle_maps: false,
+      location: {latitude: 0, longitude: 0},
+      origin: {latitude: 37.3318456, longitude: -122.0296002},
+      destination: {latitude: 37.771707, longitude: -122.4053769}
     }
 
     this.toggleMap = this.toggleMap.bind(this);
+    this.gestureHandle = this.gestureHandle.bind(this);
+    this.updateMaps = this.updateMaps.bind(this);
+  }
+  updateMaps(data){
+    // console.log("Here")
+    var item = data[Math.floor(Math.random()*data.length)];
+    // console.log(item)
+    this.setState ({
+      location: {latitude: item.geometry.location.lat, longitude: item.geometry.location.lng}
+    },() => {})
+  }
+
+  gestureHandle(e) {
+    console.log(e.touchHistory)
   }
 
   toggleMap() {
+    // https://maps.googleapis.com/maps/api/place/nearbysearch/json
+    // ?location=-33.8670522,151.1957362
+    // &radius=1500
+    // &type=restaurant
+    // &keyword=cruise
+    // &key=YOUR_API_KEY
+    let data =  {
+          location: this.state.userLocation.latitude+','+this.state.userLocation.longitude,
+          radius: '1500',
+          type: 'restaurant',
+          keyword: '',
+          key: GOOGLE_MAPS_API_KEY
+    }
+    // console.log('https://maps.googleapis.com/maps/api/place/nearbysearch/json?'+ data.location + '&radius=' + data.radius + '&type=' + data.type + '&keyword=' + data.keyword + '&key=' + data.key)
+    let test = fetch('https://maps.googleapis.com/maps/api/place/nearbysearch/json?location='+ data.location + '&radius=' + data.radius + '&type=' + data.type + '&keyword=' + data.keyword + '&key=' + data.key)
+    .then((response) => response.json())
+    .then((responseJson) => {
+      // console.log("Response", responseJson.results[0])
+      this.updateMaps(responseJson.results);
+      // return responseJson;
+    })
+    .catch((error) => {
+      // console.error("Errored", error);
+    });
+
+
+    // test = fetch('https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
+    //   method: 'GET',
+    //   headers: {
+    //     Accept: 'application/json',
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     location: '33.8670522,151.1957362',
+    //     radius: '1500',
+    //     type: 'restaurant',
+    //     keyword: '',
+    //     key: GOOGLE_MAPS_API_KEY
+    //   }),
+    // });
+
+    // console.log("Test", test)
+
     this.setState({
       toggle_maps: true,
     });
   }
 
   render(){
+    const origin = {latitude: 37.3318456, longitude: -122.0296002};
+    const destination = {latitude: 37.771707, longitude: -122.4053769};
+    // console.log("\n", this.state.location,"\n",this.state.userLocation, "\n", origin, '\n')
+
     return(
       <View style={styles.container}>
         {this.state.toggle_maps ? 
@@ -125,7 +192,20 @@ class App extends Component {
               //renderMarker={renderMarker}
               onMapReady={this.onMapReady}
               showsMyLocationButton={true}
-            />
+              // showsTraffic={true}
+            >
+              <Callout></Callout>
+              <View onMoveShouldSetResponder={this.gestureHandle} onStartShouldSetResponder={this.gestureHandle} style={{position: 'absolute', backgroundColor:'red', height: '30%', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'flex-end', alignItems: 'center'}}>
+                <Text>Hello!</Text>
+              </View>
+              <MapViewDirections
+                origin={this.state.userLocation}
+                destination={this.state.location}
+                apikey={GOOGLE_MAPS_API_KEY}
+                strokeWidth={3}
+                strokeColor="hotpink"
+              />
+            </MapView>
         :
         <Main handleToggle={this.toggleMap} title="FYB"/>
         }
@@ -138,8 +218,8 @@ class App extends Component {
   }
 
   getMapRegion = () => ({
-    latitude: this.state.userLocation.latitude ? this.state.userLocation.latitude : 1,
-    longitude: this.state.userLocation.longitude ? this.state.userLocation.longitude : 1,
+    latitude: this.state.userLocation.latitude ? this.state.location.latitude : 1,
+    longitude: this.state.userLocation.longitude ? this.state.location.longitude : 1,
     latitudeDelta: this.LATITUDE_DELTA,
     longitudeDelta: this.LONGITUDE_DELTA
   });
