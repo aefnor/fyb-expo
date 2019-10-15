@@ -4,6 +4,7 @@ import MapView, { Callout } from 'react-native-maps';
 import Main from './pages/main/Main'
 import { DepthDataQuality } from 'expo/build/AR';
 import MapViewDirections from 'react-native-maps-directions';
+import { GOOGLE_MAPS_API_KEY } from 'react-native-dotenv'
 
 class App extends Component {
   LATITUDE_DELTA = 0.0025;
@@ -132,7 +133,7 @@ class App extends Component {
           radius: '1500',
           type: 'restaurant',
           keyword: '',
-          key: 'AIzaSyApTmMUNSRvE8yEp8Q5sRWd8zVF0m6ryao'
+          key: GOOGLE_MAPS_API_KEY
     }
     // console.log('https://maps.googleapis.com/maps/api/place/nearbysearch/json?'+ data.location + '&radius=' + data.radius + '&type=' + data.type + '&keyword=' + data.keyword + '&key=' + data.key)
     let test = fetch('https://maps.googleapis.com/maps/api/place/nearbysearch/json?location='+ data.location + '&radius=' + data.radius + '&type=' + data.type + '&keyword=' + data.keyword + '&key=' + data.key)
@@ -158,7 +159,7 @@ class App extends Component {
     //     radius: '1500',
     //     type: 'restaurant',
     //     keyword: '',
-    //     key: 'AIzaSyApTmMUNSRvE8yEp8Q5sRWd8zVF0m6ryao'
+    //     key: GOOGLE_MAPS_API_KEY
     //   }),
     // });
 
@@ -172,7 +173,6 @@ class App extends Component {
   render(){
     const origin = {latitude: 37.3318456, longitude: -122.0296002};
     const destination = {latitude: 37.771707, longitude: -122.4053769};
-    const GOOGLE_MAPS_APIKEY = 'AIzaSyApTmMUNSRvE8yEp8Q5sRWd8zVF0m6ryao';
     // console.log("\n", this.state.location,"\n",this.state.userLocation, "\n", origin, '\n')
 
     return(
@@ -201,7 +201,7 @@ class App extends Component {
               <MapViewDirections
                 origin={this.state.userLocation}
                 destination={this.state.location}
-                apikey={GOOGLE_MAPS_APIKEY}
+                apikey={GOOGLE_MAPS_API_KEY}
                 strokeWidth={3}
                 strokeColor="hotpink"
               />
