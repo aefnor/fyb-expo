@@ -1,9 +1,12 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import MapView, { Callout } from 'react-native-maps';
+import { StyleSheet, Text, Button, View, YellowBox } from 'react-native';
+import MapView, { Callout, Marker } from 'react-native-maps';
 import Main from './pages/main/Main'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faCoffee, faArrowAltCircleDown } from '@fortawesome/free-solid-svg-icons'
 import { DepthDataQuality } from 'expo/build/AR';
 import MapViewDirections from 'react-native-maps-directions';
+import { Header, Left, Right } from 'native-base';
 
 class App extends Component {
   LATITUDE_DELTA = 0.0025;
@@ -99,6 +102,13 @@ class App extends Component {
       fontLoaded: false,
       toggle_maps: false,
       location: {latitude: 0, longitude: 0},
+      marker: {
+        latitude: 0,
+        longitude: 0,
+        title: 'Test',
+        text: '',
+        subtitle: 'Test subtitle.'
+      },
       origin: {latitude: 37.3318456, longitude: -122.0296002},
       destination: {latitude: 37.771707, longitude: -122.4053769}
     }
@@ -112,7 +122,8 @@ class App extends Component {
     var item = data[Math.floor(Math.random()*data.length)];
     // console.log(item)
     this.setState ({
-      location: {latitude: item.geometry.location.lat, longitude: item.geometry.location.lng}
+      location: {latitude: item.geometry.location.lat, longitude: item.geometry.location.lng},
+      marker: {latitude: item.geometry.location.lat, longitude: item.geometry.location.lng}
     },() => {})
   }
 
@@ -174,9 +185,23 @@ class App extends Component {
     const destination = {latitude: 37.771707, longitude: -122.4053769};
     const GOOGLE_MAPS_APIKEY = 'AIzaSyApTmMUNSRvE8yEp8Q5sRWd8zVF0m6ryao';
     // console.log("\n", this.state.location,"\n",this.state.userLocation, "\n", origin, '\n')
-
+    var data = [["C", "Java", "JavaScript", "PHP"], ["Python", "Ruby"], ["Swift", "Objective-C"]];
+    console.log("Render", this.state, "\n")
     return(
       <View style={styles.container}>
+        {this.state.toggle_maps ? 
+          <Header style={{width: '100%'}}>
+            <Left>
+              <FontAwesomeIcon icon={faArrowAltCircleDown} />
+            </Left>
+            <Right>
+              <Text>Next</Text>
+            </Right>
+          </Header>
+        :
+          <View></View>
+        }
+        
         {this.state.toggle_maps ? 
             <MapView
               provider="google"
@@ -195,15 +220,16 @@ class App extends Component {
               // showsTraffic={true}
             >
               <Callout></Callout>
-              <View onMoveShouldSetResponder={this.gestureHandle} onStartShouldSetResponder={this.gestureHandle} style={{position: 'absolute', backgroundColor:'red', height: '30%', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'flex-end', alignItems: 'center'}}>
-                <Text>Hello!</Text>
-              </View>
+              
               <MapViewDirections
                 origin={this.state.userLocation}
                 destination={this.state.location}
                 apikey={GOOGLE_MAPS_APIKEY}
                 strokeWidth={3}
                 strokeColor="hotpink"
+              />
+              <Marker
+                coordinate={this.state.marker}
               />
             </MapView>
         :
@@ -267,7 +293,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: 'column',
   },
 });
 

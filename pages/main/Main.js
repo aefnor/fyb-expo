@@ -15,6 +15,7 @@ export default class Main extends React.Component {
         const styles = StyleSheet.create({
             button: {
                 display: 'flex',
+                top: '40%',
                 height: 50,
                 width: 50,
                 borderRadius: 5,
