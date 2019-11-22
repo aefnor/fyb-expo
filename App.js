@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, Button, View, YellowBox } from 'react-native';
+import { StyleSheet, Text, Button, View, YellowBox, Animated } from 'react-native';
 import MapView, { Callout, Marker } from 'react-native-maps';
 import Main from './pages/main/Main'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
@@ -7,6 +7,8 @@ import { faCoffee, faArrowAltCircleDown } from '@fortawesome/free-solid-svg-icon
 import { DepthDataQuality } from 'expo/build/AR';
 import MapViewDirections from 'react-native-maps-directions';
 import { Header, Left, Right } from 'native-base';
+import { Dimensions } from 'react-native';
+const { height, width } = Dimensions.get('window')
 
 class App extends Component {
   LATITUDE_DELTA = 0.0025;
@@ -101,6 +103,8 @@ class App extends Component {
       userLocation: {},
       fontLoaded: false,
       toggle_maps: false,
+      menuHeight: height / 10,
+      fadeAnim: new Animated.Value(0),
       location: {latitude: 0, longitude: 0},
       marker: {
         latitude: 0,
@@ -116,6 +120,7 @@ class App extends Component {
     this.toggleMap = this.toggleMap.bind(this);
     this.gestureHandle = this.gestureHandle.bind(this);
     this.updateMaps = this.updateMaps.bind(this);
+    this.handleDropdown = this.handleDropdown.bind(this);
   }
   updateMaps(data){
     // console.log("Here")
@@ -180,23 +185,35 @@ class App extends Component {
     });
   }
 
+  handleDropdown() {
+    Animated.timing(
+      this.state.fadeAnim,
+      {
+        toValue: 1,
+        duration: 10000,
+      }
+    ).start();
+    this.setState({
+      menuHeight: this.state.menuHeight === height / 10 ? height / 3 : height / 10
+    })
+  }
+
   render(){
+    
     const origin = {latitude: 37.3318456, longitude: -122.0296002};
     const destination = {latitude: 37.771707, longitude: -122.4053769};
     // console.log("\n", this.state.location,"\n",this.state.userLocation, "\n", origin, '\n')
     var data = [["C", "Java", "JavaScript", "PHP"], ["Python", "Ruby"], ["Swift", "Objective-C"]];
-    console.log("Render", this.state, "\n")
+    // console.log("Render", this.state, "\n")
+    console.log(height)
     return(
       <View style={styles.container}>
         {this.state.toggle_maps ? 
-          <Header style={{width: '100%'}}>
-            <Left>
-              <FontAwesomeIcon icon={faArrowAltCircleDown} />
-            </Left>
-            <Right>
-              <Text>Next</Text>
-            </Right>
-          </Header>
+          <Animated.View style={{width: '100%', height: this.state.menuHeight}}>          
+              <FontAwesomeIcon size={30} style={{position: 'absolute', top: height / 20, left: 20}} onPress={this.handleDropdown} icon={faArrowAltCircleDown} />
+              <Text  style={{top: height / 19.5, right: 20, position: 'absolute'}}>Next</Text>
+              <Text>This is not a tezt</Text>
+          </Animated.View>
         :
           <View></View>
         }
